@@ -1,6 +1,6 @@
 # RetroVibez
 
-**Larval Reversal Detection Pipeline** | v1.0.0
+**Larval Reversal Detection Pipeline** | v1.0.1
 
 Automated end-to-end pipeline for detecting and analyzing reverse crawling behavior in *Drosophila* larvae. Computes heading-velocity dot products, identifies reversal events, generates trajectory visualizations, and renders PDF/HTML reports.
 
