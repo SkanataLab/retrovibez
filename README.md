@@ -5,7 +5,7 @@
 Automated end-to-end pipeline for detecting and analyzing reverse crawling behavior in *Drosophila* larvae. Computes heading-velocity dot products, identifies reversal events, generates trajectory visualizations, and renders PDF/HTML reports.
 
 **Author:** Gil Raitses  
-**Lab:** Skanata Lab (Mirna Mihovilovic-Skanata), BioInspired Institute, Syracuse University  
+**Lab:** Mirna Lab (Mirna Mihovilovic-Skanata), BioInspired Institute, Syracuse University  
 **Date:** December 9, 2025  
 **License:** MIT (see [LICENSE](LICENSE))
 
