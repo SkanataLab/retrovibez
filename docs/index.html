@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>retrovibez</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0d0d0d;
+            width: 100vw;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        #ascii-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Monaco', 'Menlo', 'Consolas', 'Courier New', monospace;
+            font-size: 8px;
+            line-height: 1;
+            white-space: pre;
+            color: #ff00ff;
+            background: #0d0d0d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: left;
+            text-rendering: geometricPrecision;
+            -webkit-font-smoothing: subpixel-antialiased;
+            opacity: 0.3;
+            z-index: 1;
+            pointer-events: none;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
+        }
+
+        #content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px 20px 40px 20px;
+        }
+
+        #title-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            height: 120px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        #title-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        #title-text {
+            position: relative;
+            z-index: 2;
+            font-family: 'Avenir', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 48px;
+            font-weight: 200;
+            letter-spacing: 3px;
+            text-transform: lowercase;
+            color: #00ffff;
+            text-shadow:
+                0 0 10px #00ffff,
+                0 0 20px #ff00ff,
+                0 0 30px #ff00ff,
+                0 0 40px #00ffff;
+        }
+
+        @media (max-width: 900px) {
+            #title-text {
+                font-size: 36px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            #title-text {
+                font-size: 30px;
+            }
+        }
+
+        #title-gradient-overlay,
+        #title-gradient-overlay-2,
+        #title-gradient-overlay-3 {
+            position: absolute;
+            inset: -400%;
+            width: 1800%;
+            height: 1800%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        #title-gradient-overlay {
+            opacity: 0.15;
+            background: conic-gradient(from 0deg,
+                    rgba(255, 0, 255, 0.1) 0%,
+                    rgba(0, 255, 255, 0.08) 25%,
+                    rgba(255, 0, 255, 0.1) 50%,
+                    rgba(0, 255, 255, 0.08) 75%,
+                    rgba(255, 0, 255, 0.1) 100%);
+            filter: blur(160px);
+            animation: spinGradient 60s linear infinite;
+        }
+
+        #title-gradient-overlay-2 {
+            opacity: 0.1;
+            background: conic-gradient(from 180deg,
+                    rgba(0, 255, 255, 0.08) 0%,
+                    rgba(255, 0, 255, 0.1) 50%,
+                    rgba(0, 255, 255, 0.08) 100%);
+            filter: blur(200px);
+            animation: spinGradientCounter 90s linear infinite;
+        }
+
+        #title-gradient-overlay-3 {
+            opacity: 0.08;
+            background: radial-gradient(circle at 50% 50%,
+                    rgba(255, 0, 255, 0.15) 0%,
+                    transparent 50%);
+            filter: blur(100px);
+            animation: pulseGradient 4s ease-in-out infinite;
+        }
+
+        @keyframes spinGradient {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes spinGradientCounter {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+
+        @keyframes pulseGradient {
+            0%, 100% { transform: scale(1); opacity: 0.08; }
+            50% { transform: scale(1.2); opacity: 0.15; }
+        }
+
+        #menu-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-top: 10px;
+            padding: 0 20px;
+            flex-wrap: wrap;
+        }
+
+        .menu-item {
+            position: relative;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 16px;
+            font-weight: 400;
+            text-transform: lowercase;
+            color: #ff00ff;
+            cursor: pointer;
+            padding: 8px 0;
+            text-decoration: none;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        .menu-item:hover {
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        .menu-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff00ff, #00ffff);
+            transition: width 0.3s ease;
+        }
+
+        .menu-item:hover::after {
+            width: 100%;
+        }
+
+        .menu-item-tooltip {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #1a1a1a;
+            border: 1px solid #ff00ff;
+            color: #00ffff;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 1000;
+        }
+
+        .menu-item:hover .menu-item-tooltip {
+            opacity: 1;
+        }
+
+        .copy-button {
+            position: relative;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 16px;
+            font-weight: 400;
+            text-transform: lowercase;
+            color: #ff00ff;
+            cursor: pointer;
+            padding: 8px 0;
+            background: none;
+            border: none;
+            text-decoration: none;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        .copy-button:hover {
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        .copy-button::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff00ff, #00ffff);
+            transition: width 0.3s ease;
+        }
+
+        .copy-button:hover::after {
+            width: 100%;
+        }
+
+        .copy-button.copied {
+            color: #00ffff;
+        }
+
+        .copy-button.copied::after {
+            width: 100%;
+        }
+
+        .copy-button-tooltip {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #1a1a1a;
+            border: 1px solid #ff00ff;
+            color: #00ffff;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 1000;
+        }
+
+        .copy-button:hover .copy-button-tooltip {
+            opacity: 1;
+        }
+
+        #scrolling-about {
+            position: fixed;
+            top: 140px;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            color: #666;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        #scrolling-about-content {
+            display: inline-block;
+            white-space: nowrap;
+            animation: scrollText 32s linear infinite;
+        }
+
+        @keyframes scrollText {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        @media (max-width: 768px) {
+            #menu-container {
+                gap: 24px;
+            }
+            .menu-item {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="ascii-background"></div>
+
+    <div id="content">
+        <div id="title-container">
+            <canvas id="title-canvas"></canvas>
+            <div id="title-gradient-overlay"></div>
+            <div id="title-gradient-overlay-2"></div>
+            <div id="title-gradient-overlay-3"></div>
+            <h1 id="title-text">retrovibez</h1>
+        </div>
+
+        <nav id="menu-container">
+            <a href="https://github.com/GilRaitses/retrovibez" class="menu-item" target="_blank">
+                docs
+                <span class="menu-item-tooltip">opens repo readme</span>
+            </a>
+            <button class="copy-button" id="copy-clone-btn">
+                clone
+                <span class="copy-button-tooltip">copies git clone command</span>
+            </button>
+        </nav>
+
+        <div id="scrolling-about">
+            <div id="scrolling-about-content">
+                retrovibez detects larval reverse crawling using heading-velocity dot products // built for mirna lab // implements klein et al. 2015 methods
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="retro-art.js" charset="UTF-8"></script>
+    <script>
+        const neonColors = {
+            magenta: 0xff00ff,
+            cyan: 0x00ffff,
+            purple: 0x9b59b6,
+            pink: 0xff1493,
+            blue: 0x0080ff
+        };
+
+        function initAsciiBackground() {
+            const background = document.getElementById('ascii-background');
+            if (!background) return;
+
+            if (typeof retroFrames === 'undefined' || !retroFrames || !retroFrames.length) {
+                console.log('Waiting for retroFrames...');
+                setTimeout(initAsciiBackground, 100);
+                return;
+            }
+
+            console.log('Loading retro frames, total:', retroFrames.length);
+
+            let currentFrameIndex = 0;
+            background.textContent = retroFrames[currentFrameIndex];
+
+            // Cycle through frames
+            setInterval(() => {
+                currentFrameIndex = (currentFrameIndex + 1) % retroFrames.length;
+                background.textContent = retroFrames[currentFrameIndex];
+            }, 200); // Change frame every 200ms
+        }
+
+        function initTitleLighting() {
+            const container = document.getElementById('title-container');
+            const canvas = document.getElementById('title-canvas');
+            if (!container || !canvas) return;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 100);
+            const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setClearColor(0x000000, 0);
+            camera.position.z = 5;
+
+            const lights = [
+                new THREE.PointLight(neonColors.magenta, 1.0, 12),
+                new THREE.PointLight(neonColors.cyan, 1.0, 12),
+                new THREE.PointLight(neonColors.purple, 0.6, 12)
+            ];
+            lights[0].position.set(-2.5, 0.5, 3);
+            lights[1].position.set(2.5, 0.3, 3);
+            lights[2].position.set(0, -1.5, 3);
+            lights.forEach(l => scene.add(l));
+
+            let t = 0;
+            function animate() {
+                requestAnimationFrame(animate);
+                t += 0.005;
+                lights[0].position.x = -2.5 + Math.sin(t * 0.9) * 0.5;
+                lights[0].position.y = 0.5 + Math.cos(t * 0.8) * 0.4;
+                lights[1].position.x = 2.5 + Math.cos(t * 0.85) * 0.5;
+                lights[1].position.y = 0.3 + Math.sin(t * 0.7) * 0.4;
+                lights[2].position.y = -1.5 + Math.cos(t * 0.6) * 0.3;
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+                const w = container.clientWidth;
+                const h = container.clientHeight;
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+                renderer.setSize(w, h);
+            });
+        }
+
+        function initMenu() {
+            const copyButton = document.getElementById('copy-clone-btn');
+            if (copyButton) {
+                copyButton.addEventListener('click', async () => {
+                    const cloneCommand = 'git clone https://github.com/GilRaitses/retrovibez.git';
+                    try {
+                        await navigator.clipboard.writeText(cloneCommand);
+                        copyButton.textContent = 'copied';
+                        copyButton.classList.add('copied');
+                        setTimeout(() => {
+                            copyButton.textContent = 'clone';
+                            copyButton.classList.remove('copied');
+                        }, 2000);
+                    } catch (err) {
+                        const textArea = document.createElement('textarea');
+                        textArea.value = cloneCommand;
+                        textArea.style.position = 'fixed';
+                        textArea.style.opacity = '0';
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        try {
+                            document.execCommand('copy');
+                            copyButton.textContent = 'copied';
+                            copyButton.classList.add('copied');
+                            setTimeout(() => {
+                                copyButton.textContent = 'clone';
+                                copyButton.classList.remove('copied');
+                            }, 2000);
+                        } catch (err) {
+                            console.error('Failed to copy:', err);
+                        }
+                        document.body.removeChild(textArea);
+                    }
+                });
+            }
+        }
+
+        function waitForThreeJS(callback) {
+            if (typeof THREE !== 'undefined') {
+                callback();
+            } else {
+                setTimeout(() => waitForThreeJS(callback), 50);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initAsciiBackground();
+            waitForThreeJS(() => {
+                initTitleLighting();
+            });
+            initMenu();
+        });
+    </script>
+</body>
+
+</html>
+
