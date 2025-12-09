@@ -10,8 +10,8 @@ import re
 from pathlib import Path
 from datetime import datetime
 
-# Add core module path
-PIPELINE_ROOT = Path(__file__).parent
+# Add core module path (parent of bin/)
+PIPELINE_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PIPELINE_ROOT))
 
 from core.systemfairy import run_systemfairy, ensure_requirements

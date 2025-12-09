@@ -22,7 +22,7 @@ if ! command -v python3 &> /dev/null; then
 fi
 
 # Run
-python3 retrovibez_cli.py
+python3 bin/retrovibez_cli.py
 
 echo
 read -p "Press Enter to close..."

@@ -26,7 +26,7 @@ if errorlevel 1 (
 )
 
 REM Run system check and then CLI
-python retrovibez_cli.py
+python bin\retrovibez_cli.py
 
 echo.
 pause
